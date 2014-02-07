@@ -7,6 +7,12 @@
 
 namespace smo_any {
 
+template <class T, class ...>
+inline T *singleton_get() {
+  static T t;
+  return &t;
+}
+
 template <class V>
 struct type_dict {
   typedef V *Value;

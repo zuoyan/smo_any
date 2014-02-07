@@ -13,6 +13,16 @@
 
 namespace smo_any {
 
+template <class Table, class T>
+struct static_reification {
+  Table *table;
+
+  static_reification() {
+    table = singleton_get<Table, T>();
+    table->template reification<T>();
+  }
+};
+
 template <class Store, class... Concept>
 struct basic_any
     : bases<typename model_extends<basic_any<Store, Concept...>, vector<empty>,
@@ -20,27 +30,6 @@ struct basic_any
  private:
   typedef table_bases<typename table_extends<vector<>, concept_any<Store>,
                                              Concept...>::type> Table;
-  template <class T>
-  struct type_get_reification_table {
-    static Table *get_table() {
-      static Table table;
-      return &table;
-    }
-
-    type_get_reification_table() { get_table()->template reification<T>(); }
-  };
-
-  template <class T>
-  static Table *get_reification_table() {
-    type_get_reification_table<T> r;
-    return r.get_table();
-  }
-
-  static type_dict<Table> *get_type_dict() {
-    static type_dict<Table> t;
-    return &t;
-  }
-
  public:
   const Table *table_;
   Store store_;
@@ -116,7 +105,7 @@ struct basic_any
   basic_any(U &&value) {
     typedef typename std::remove_reference<
         typename std::remove_cv<U>::type>::type T;
-    table_ = get_reification_table<T>();
+    table_ = singleton_get<static_reification<Table, T>>()->table;
     if (sizeof(Store) >= sizeof(T) && alignof(Store) >= alignof(T)) {
       new (local_data()) T(std::forward<U>(value));
     } else {
@@ -158,11 +147,12 @@ struct basic_any
                 Table, typename basic_any<OS, OC...>::Table>::value>::type>
   basic_any(const basic_any<OS, OC...> &o) {
     if (o.table_) {
-      auto p = get_type_dict()->find(o.table_->type_info);
+      auto dict = singleton_get<type_dict<Table>>();
+      auto p = dict->find(o.table_->type_info);
       if (!p) {
         std::unique_ptr<Table> ptr(new Table);
         *ptr = *o.table_;
-        p = get_type_dict()->add(o.table_->type_info, ptr).first;
+        p = dict->add(o.table_->type_info, ptr).first;
       }
       table_ = p;
       if (stored_in_heap()) {
@@ -186,11 +176,12 @@ struct basic_any
                 Table, typename basic_any<OS, OC...>::Table>::value>::type>
   basic_any(basic_any<OS, OC...> &&o) {
     if (o.table_) {
-      auto p = get_type_dict()->find(o.table_->type_info);
+      auto dict = singleton_get<type_dict<Table>>();
+      auto p = dict->find(o.table_->type_info);
       if (!p) {
         std::unique_ptr<Table> ptr(new Table);
         *ptr = *o.table_;
-        p = get_type_dict()->add(o.table_->type_info, ptr).first;
+        p = dict->add(o.table_->type_info, ptr).first;
       }
       table_ = p;
       if (stored_in_heap()) {
