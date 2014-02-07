@@ -16,7 +16,7 @@ struct concept_equal : concepts<concept_typebase> {
     bool (*func)(const void *a, const void *b);
 
     template <class T>
-    void reification() {
+    void reify() {
       func =
           reinterpret_cast<bool (*)(const void *, const void *)>(type_equal<T>);
     }

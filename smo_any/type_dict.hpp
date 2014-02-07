@@ -13,6 +13,7 @@ inline T *singleton_get() {
   return &t;
 }
 
+// we don't own/manage any the pointer
 template <class V>
 struct type_dict {
   typedef V *Value;
@@ -36,13 +37,6 @@ struct type_dict {
   }
 
   ~type_dict() {
-    auto state = state_.load();
-    for (size_t i = 0; i < state->buckets; ++i) {
-      auto &kv = state->table[i];
-      if (kv.first != Key()) {
-        delete kv.second;
-      }
-    }
     while (state) {
       auto old = state->old;
       free(state);

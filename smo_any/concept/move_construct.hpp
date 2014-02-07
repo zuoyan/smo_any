@@ -14,7 +14,7 @@ struct concept_move_construct : concepts<> {
     void (*move_construct)(void *d, void *s);
 
     template <class T>
-    void reification() {
+    void reify() {
       move_construct =
           reinterpret_cast<void (*)(void *, void *)>(type_move_construct<T>);
     }

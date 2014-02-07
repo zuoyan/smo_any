@@ -22,7 +22,7 @@ struct concept_any
     void *(*any_data)(Store *store);
 
     template <class T>
-    void reification() {
+    void reify() {
       any_in_local = sizeof(Store) >= sizeof(T) && alignof(Store) >= alignof(T);
       any_data = reinterpret_cast<void *(*)(Store *)>(type_any_data<T>);
     }

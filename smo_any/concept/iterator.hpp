@@ -18,7 +18,7 @@ struct concept_distance : smo_any::concepts<> {
   struct Table {
     D (*func)(const void *a, const void *b);
     template <class T>
-    void reification() {
+    void reify() {
       func = reinterpret_cast<D (*)(const void *, const void *)>(type_func<T>);
     }
   };

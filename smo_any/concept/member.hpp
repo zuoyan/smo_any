@@ -32,7 +32,7 @@ struct access_table<R(Args...), AccessFunc, is_const> {
     R (*func)(void *self, Args...);
 
     template <class T>
-    void reification() {
+    void reify() {
       func = reinterpret_cast<R (*)(void *, Args...)>(
           type_func<typename std::conditional<is_const, const T, T>::type>);
     };

@@ -14,7 +14,7 @@ struct concept_destruct : concepts<> {
     void (*destruct)(void *d);
 
     template <class T>
-    void reification() {
+    void reify() {
       destruct = reinterpret_cast<void (*)(void *)>(type_destruct<T>);
     }
   };

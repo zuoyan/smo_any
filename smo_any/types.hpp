@@ -70,7 +70,7 @@ struct bases<vector<T...>> : T... {};
 
 struct table_empty {
   template <class T>
-  void reification() {}
+  void reify() {}
 };
 
 template <class... T>
@@ -101,8 +101,8 @@ template <class... T>
 struct table_bases<vector<T...>> : T... {
  private:
   template <class H, class U>
-  int reification_help() {
-    H::template reification<U>();
+  int reify_help() {
+    H::template reify<U>();
     return 1;
   }
 
@@ -119,8 +119,8 @@ struct table_bases<vector<T...>> : T... {
   }
 
   template <class U>
-  void reification() {
-    amount(reification_help<T, U>()...);
+  void reify() {
+    amount(reify_help<T, U>()...);
   }
 };
 

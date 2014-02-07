@@ -9,7 +9,7 @@ namespace smo_any {
 struct concept_typebase : concepts<> {
   struct Table {
     template <class T>
-    void reification() {
+    void reify() {
       size = sizeof(T);
       align = sizeof(T);
       type_info = &typeid(T);

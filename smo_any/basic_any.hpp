@@ -13,13 +13,25 @@
 
 namespace smo_any {
 
+template <class Table>
+Table* dynamic_reification(const std::type_info* ti) {
+  auto dict = singleton_get<type_dict<Table>>();
+  return dict.find(ti);
+}
+
+template <class Table>
+bool add_dynamic_reification(const std::type_info *ti, const Table *t) {
+  auto dict = singleton_get<type_dict<Table>>();
+  return dict.add(ti, (Table*)t).second;
+}
+
 template <class Table, class T>
-struct static_reification {
+struct static_reify {
   Table *table;
 
-  static_reification() {
+  static_reify() {
     table = singleton_get<Table, T>();
-    table->template reification<T>();
+    table->template reify<T>();
   }
 };
 
@@ -105,7 +117,7 @@ struct basic_any
   basic_any(U &&value) {
     typedef typename std::remove_reference<
         typename std::remove_cv<U>::type>::type T;
-    table_ = singleton_get<static_reification<Table, T>>()->table;
+    table_ = singleton_get<static_reify<Table, T>>()->table;
     if (sizeof(Store) >= sizeof(T) && alignof(Store) >= alignof(T)) {
       new (local_data()) T(std::forward<U>(value));
     } else {
