@@ -9,40 +9,20 @@
 #include <memory>
 
 #include "smo_any/concept/any.hpp"
+#include "smo_any/dynamic.hpp"
 #include "smo_any/type_dict.hpp"
+#include "smo_any/concept/copy_construct.hpp"
 
 namespace smo_any {
-
-template <class Table>
-Table* dynamic_reification(const std::type_info* ti) {
-  auto dict = singleton_get<type_dict<Table>>();
-  return dict.find(ti);
-}
-
-template <class Table>
-bool add_dynamic_reification(const std::type_info *ti, const Table *t) {
-  auto dict = singleton_get<type_dict<Table>>();
-  return dict.add(ti, (Table*)t).second;
-}
-
-template <class Table, class T>
-struct static_reify {
-  Table *table;
-
-  static_reify() {
-    table = singleton_get<Table, T>();
-    table->template reify<T>();
-  }
-};
 
 template <class Store, class... Concept>
 struct basic_any
     : bases<typename model_extends<basic_any<Store, Concept...>, vector<empty>,
                                    concept_any<Store>, Concept...>::type> {
- private:
+
+  typedef vector<concept_any<Store>, Concept...> Concepts;
   typedef table_bases<typename table_extends<vector<>, concept_any<Store>,
                                              Concept...>::type> Table;
- public:
   const Table *table_;
   Store store_;
 
@@ -50,12 +30,12 @@ struct basic_any
     return !(size <= sizeof(Store) && align <= alignof(Store));
   }
 
-  inline bool stored_in_heap() {
+  inline bool stored_in_heap() const {
     // return stored_in_heap(table_->size, table_->align);
     return !table_->any_in_local;
   }
 
-  inline bool stored_in_local() { return table_->any_in_local; }
+  inline bool stored_in_local() const { return table_->any_in_local; }
 
   void *&heap_data() const {
     return reinterpret_cast<void *&>(const_cast<Store &>(store_));
@@ -117,7 +97,9 @@ struct basic_any
   basic_any(U &&value) {
     typedef typename std::remove_reference<
         typename std::remove_cv<U>::type>::type T;
-    table_ = singleton_get<static_reify<Table, T>>()->table;
+    static static_reify_and_register<Table, T, concept_any<Store>, Concept...>
+        s;
+    table_ = s.table;
     if (sizeof(Store) >= sizeof(T) && alignof(Store) >= alignof(T)) {
       new (local_data()) T(std::forward<U>(value));
     } else {

@@ -2,7 +2,7 @@
 
 This's a small library for type erasure, like std::function, boost::any.
 
-# Usage
+## Usage
 
 ```c++
 template <class Sig>
@@ -48,3 +48,50 @@ indirect in reification stage. 'any<concept_any_function<Sig>>' is almost the
 same speed as std::function<Sig>.
 
 For more examples, please check examples under smo_any/concept directory.
+
+
+## Dynamic Cast
+
+As a experiment, this library also provides dynamic casting from any object to
+another any, based on the underline types. It try to find every atomically
+operations table, and combine them to got all operations. I hope one day, C++
+standard will support dynamic inspection.
+
+```c++
+struct Object {
+  int operator()(int v) const {
+    return v * v;
+  }
+};
+
+Object obj;
+
+// This will register Object as one of concept_call<int(int)>.
+any<concept_call<int(int)>> a = obj;
+
+// This will register Object as one of concept_copy_construct.
+any<concept_copy_construct> c = obj;
+
+// b is really erased.
+any<> b = obj;
+
+// This will find the copy and call functions through the already registered table.
+any<concept_call<int(int)>> c = any_cast_any<any<concept_call<int(int)>>>(b);
+
+// Same as above line, but don't need copy.
+c = any_cast_any<any<concept_call<int(int)>>>(std::move(b));
+
+assert(c);
+assert(c.table()->type_info == &typeid(Object));
+assert(c(13) == obj(13));
+
+any<> d = std::function<int(int)>(obj);
+
+// This will abort. Because std::function<int(int) is not registered, we can't
+// find the copy and call functions.
+any<concept_call<int(int)>> c = any_cast_any<any<concept_call<int(int)>>>(d);
+```
+
+Please note that this dynamic cast resolves table just based on current type, it
+doesn't check the bases. For that purpose, please refer
+(http://github.com/zuoyan/mult_method)[multi_method].

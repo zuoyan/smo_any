@@ -4,6 +4,8 @@
 #include <mutex>
 #include <typeinfo>
 #include <utility>
+#include <memory>
+#include <vector>
 
 namespace smo_any {
 
@@ -27,6 +29,7 @@ struct type_dict {
   };
   std::atomic<State *> state_;
   std::mutex add_mutex_;
+  std::vector<std::shared_ptr<void>> ptrs_;
 
   type_dict() {
     const size_t buckets = 8;
@@ -37,6 +40,7 @@ struct type_dict {
   }
 
   ~type_dict() {
+    auto state = state_.load();
     while (state) {
       auto old = state->old;
       free(state);
@@ -92,7 +96,7 @@ struct type_dict {
     auto v_b = add(k, value.get());
     if (v_b.second) {
       assert(value.get() == v_b.first);
-      value.release();
+      ptrs_.emplace_back(std::move(value));
       return v_b;
     }
     return v_b;

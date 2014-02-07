@@ -7,6 +7,7 @@
 #include "smo_any/concept/any_function.hpp"
 #include "smo_any/concept/container.hpp"
 #include "smo_any/concept/call.hpp"
+#include "smo_any/any_cast.hpp"
 
 #include <cassert>
 #include <utility>
@@ -150,7 +151,9 @@ int main(int argc, char *argv[]) {
     CLOG_CHECK(ea != b);
     CLOG_CHECK(b != ea);
     a = ea;
-    CLOG_CHECK(a.table()->type_info == ea.table()->type_info);
+    CLOG_CHECK_EQ(a.table()->type_info, ea.table()->type_info);
+    auto t = any_cast_any<decltype(ea)>(a);
+    CLOG_CHECK_EQ((void *)t.table(), (void *)ea.table());
   }
 
   {
