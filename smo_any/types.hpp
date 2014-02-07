@@ -98,7 +98,7 @@ template <class V>
 struct table_bases;
 
 template <class... T>
-struct table_bases<vector<T...>> : virtual T... {
+struct table_bases<vector<T...>> : T... {
  private:
   template <class H, class U>
   int reification_help() {
