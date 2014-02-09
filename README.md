@@ -11,8 +11,8 @@ struct concept_const_call;
 template <class R, class ...Args>
 struct concept_const_call<R(Args...)> {
   template <class T>
-  static R type_func(const T& ptr, Args...args) {
-    return ptr(args...);
+  static R type_func(const T& v, Args...args) {
+    return v(args...);
   }
 
   struct Table {
@@ -20,19 +20,19 @@ struct concept_const_call<R(Args...)> {
 
     // T is the under type, set function pointer.
     template <class T>
-	void reification() {
-	  func = reinterpret_cast<decltype(func)>(type_fun<T>);
-	}
+    void reification() {
+      func = reinterpret_cast<decltype(func)>(type_fun<T>);
+    }
   };
 
-  // Derived are the instance of basic_any<...>,
+  // Derived is one instance of basic_any<...>,
   // the final type with all concepts.
   template <class Derived>
   struct Model {
     R operator()(Args...args) const {
-	  auto derived = static_cast<const Derived*>(this);
-	  return derived->table()->func(derved->data(), args...);
-	}
+      auto derived = static_cast<const Derived*>(this);
+      return derived->table()->func(derved->data(), args...);
+    }
   }
 };
 ```
@@ -92,6 +92,6 @@ any<> d = std::function<int(int)>(obj);
 any<concept_call<int(int)>> c = any_cast_any<any<concept_call<int(int)>>>(d);
 ```
 
-Please note that this dynamic cast resolves table just based on current type, it
-doesn't check the bases. For that purpose, please refer
-(http://github.com/zuoyan/mult_method)[multi_method].
+Please note that this dynamic cast resolves table just checking
+current type, it doesn't check the bases. For that purpose, please
+refer to [multi_method](http://github.com/zuoyan/multi_method).
