@@ -8,3 +8,5 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fno-inline")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
 ADD_EXECUTABLE(smo_any_test smo_any_test.cpp)
+
+ADD_EXECUTABLE(clog_test clog_test.cpp)
