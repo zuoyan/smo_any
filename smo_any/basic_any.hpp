@@ -208,6 +208,21 @@ struct basic_any
   }
 };
 
+template <class S, class ...C>
+const void* data(const basic_any<S, C...> &d) {
+  return d ? d.data() : nullptr;
+}
+
+template <class S, class ...C>
+void* data(basic_any<S, C...> &d) {
+  return d ? d.data() : nullptr;
+}
+
+template <class S, class ...C>
+const std::type_info* type_info(const basic_any<S, C...> &d) {
+  return d ? d.table()->type_info : &typeid(void);
+}
+
 }  // namespace smo_any
 
 #endif  // FILE_5AC56FE0_6593_4543_A585_8E581AF78516_H

@@ -52,9 +52,9 @@ struct concept_minus_assign<self> : concepts<> {
     Derived &operator-=(const Other &b) {
       Derived &a = static_cast<Derived &>(*this);
       assert(!a.empty());
-      assert(a.table()->type_info == b.table()->type_info);
+      assert(a.table()->type_info == type_info(b));
       const Table *table = a.table();
-      table->func(a.data(), b.data());
+      table->func(a.data(), data(b));
       return *this;
     }
   };
@@ -135,9 +135,9 @@ struct concept_minus<self, R> : concepts<> {
     R operator-(const Other &b) const {
       const Derived &a = static_cast<const Derived &>(*this);
       assert(!a.empty());
-      assert(a.table()->type_info == b.table()->type_info);
+      assert(a.table()->type_info == type_info(b));
       const Table *table = a.table();
-      return table->func(a.data(), b.data());
+      return table->func(a.data(), data(b));
     }
   };
 };
@@ -163,10 +163,10 @@ struct concept_minus<self, self> : concepts<> {
     Derived operator-(const Other &b) const {
       const Derived &a = static_cast<const Derived &>(*this);
       assert(!a.empty());
-      assert(a.table()->type_info == b.table()->type_info);
+      assert(a.table()->type_info == type_info(b));
       auto r = a.raw_like();
       const Table *table = a.table();
-      table->func(a.data(), b, r.data());
+      table->func(a.data(), data(b), r.data());
       return r;
     }
   };

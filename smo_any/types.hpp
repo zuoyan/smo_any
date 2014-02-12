@@ -195,5 +195,15 @@ struct model_extends<
 
 using any_store = std::aligned_storage<sizeof(void *) * 3>::type;
 
+template <class T>
+auto data(T &d) -> decltype(&d) {
+  return &d;
+}
+
+template <class T>
+const std::type_info* type_info(const T &d) {
+  return typeid(T);
+}
+
 }  // namespace smo_any
 #endif // FILE_10DDD1E6_BB97_43BE_B1E4_A9DEFA060C2E_H

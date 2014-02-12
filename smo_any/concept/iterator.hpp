@@ -8,6 +8,7 @@
 #include "smo_any/concept/dereference.hpp"
 #include "smo_any/concept/plus.hpp"
 #include "smo_any/concept/minus.hpp"
+#include "smo_any/concept/compare.hpp"
 #include "smo_any/concept/offset_dereference.hpp"
 
 namespace smo_any {
@@ -33,16 +34,18 @@ struct concept_distance : smo_any::concepts<> {
     inline friend typename std::enable_if<!std::is_same<A, Derived>::value,
                                           D>::type
     distance(const A &a, const Derived &b) {
-      assert(a.table()->type_info == b.table()->type_info);
-      const Table *at = a.table();
-      return at->func(a.data(), b.data());
+      assert(!b.empty());
+      assert(type_info(a) == b.table()->type_info);
+      const Table *t = b.table();
+      return t->func(data(a), b.data());
     }
 
     template <class B>
     inline friend D distance(const Derived &a, const B &b) {
-      assert(a.table()->type_info == b.table()->type_info);
+      assert(!a.empty());
+      assert(a.table()->type_info == type_info(b));
       const Table *at = a.table();
-      return at->func(a.data(), b.data());
+      return at->func(a.data(), data(b));
     }
   };
 };
@@ -96,8 +99,8 @@ template <class V, class R = const V &, class D = std::ptrdiff_t>
 struct concept_random_access_iterator
     : concepts<concept_bidirectional_iterator<V, R>, concept_plus<D>,
                concept_plus_assign<D>, concept_minus<D, self>,
-               concept_minus_assign<D>,
-               concept_const_offset_dereference<R(D)>> {};
+               concept_minus_assign<D>, concept_minus<self, D>,
+               concept_const_offset_dereference<R(D)>, concept_compare> {};
 
 template <class V, class R = const V &, class D = std::ptrdiff_t>
 using any_random_access_iterator = any<concept_random_access_iterator<V, R, D>>;

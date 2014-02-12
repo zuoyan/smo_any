@@ -26,13 +26,12 @@ struct concept_equal : concepts<concept_typebase> {
   struct Model {
     template <class Other>
     inline friend bool operator==(const Derived &a, const Other &b) {
-      auto at = a.table();
-      const concept_typebase::Table *bt = b.table();
-      if (!at && !bt) return true;
-      if (!at || !bt) return false;
-      if (at->type_info == bt->type_info) {
-        return static_cast<const Table *>(at)
-            ->func((const void *)a.data(), (const void *)b.data());
+      const Table *at = a.table();
+      auto bti = type_info(b);
+      if (!at) return bti == &typeid(void);
+      auto ati = a.table()->type_info;
+      if (ati == bti) {
+        return at->func(a.data(), data(b));
       }
       return false;
     }

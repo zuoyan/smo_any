@@ -144,6 +144,12 @@ int main(int argc, char *argv[]) {
       CLOG_CHECK_EQ(it[2], 13);
       CLOG_CHECK(it == it);
       CLOG_CHECK(it + 1 == it + 1);
+      CLOG_CHECK_EQ((it + 2) - it, 2);
+      CLOG_CHECK(it < (it + 1));
+      CLOG_CHECK(it <= (it + 1));
+      CLOG_CHECK((it + 1) <= (it + 1));
+      CLOG_CHECK((it + 2) > (it + 1));
+      CLOG_CHECK((it + 2) >= (it + 1));
     }
 
     begin(vi);
