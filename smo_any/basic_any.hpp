@@ -45,10 +45,6 @@ struct basic_any
     return reinterpret_cast<void *>(const_cast<Store *>(&store_));
   }
 
-  template <class OS, class... OC>
-  friend struct basic_any;
-
- public:
   inline explicit operator bool() const { return table_; }
 
   inline bool empty() const { return !table_; }
@@ -92,6 +88,16 @@ struct basic_any
 
   ~basic_any() { clear(); }
   basic_any() { table_ = nullptr; }
+
+  basic_any raw_like() const {
+    basic_any t;
+    t.table_ = table_;
+    assert(table_);
+    if (stored_in_heap()) {
+      t.heap_data() = ::operator new(table_->size);
+    }
+    return std::move(t);
+  }
 
   template <class U>
   basic_any(U &&value) {

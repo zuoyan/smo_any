@@ -5,7 +5,7 @@ SET(CMAKE_INCLUDE_CURRENT_DIR 1)
 
 SET(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fno-inline")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
 
 ADD_EXECUTABLE(smo_any_test smo_any_test.cpp)
 

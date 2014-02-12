@@ -7,6 +7,7 @@
 namespace smo_any {
 
 struct empty {};
+struct self {};
 
 template <class... T>
 struct vector {

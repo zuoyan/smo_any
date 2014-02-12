@@ -18,6 +18,12 @@ struct concept_increment : smo_any::concepts<> {
       table->func(a.data());
       return a;
     }
+
+    inline Derived operator++(int) {
+      Derived a = static_cast<Derived>(*this);
+      ++*this;
+      return a;
+    }
   };
 };
 

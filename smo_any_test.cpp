@@ -100,8 +100,12 @@ struct Call {
 };
 
 template <class Func>
-void test_func(const std::string & name, Func && func) {
+void test_func(const std::string &name, Func &&func) {
+#ifdef NDEBUG
   int n = 1.e8;
+#else
+  int n = 1.e5;
+#endif
   int v = 0;
   auto start = std::chrono::steady_clock::now();
   for (int i = 0; i < n; ++i) {
@@ -109,7 +113,7 @@ void test_func(const std::string & name, Func && func) {
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double, std::nano> elapsed = end - start;
-  CLOG(INFO, name, "result", v);
+  CLOG(INFO, name, "result", v, "n=" << n);
   CLOG(INFO, name, elapsed.count() / n, "nano-seconds/call");
   CLOG(INFO, name, n * 1.e9 / elapsed.count(), "#calls/second");
 }
@@ -132,6 +136,16 @@ int main(int argc, char *argv[]) {
 
   {
     std::vector<int> vi{{11,12,13}};
+    {
+      any<concept_random_access_iterator<int>> it(vi.begin());
+      CLOG_CHECK_EQ(*it, 11);
+      CLOG_CHECK_EQ(it[0], 11);
+      CLOG_CHECK_EQ(it[1], 12);
+      CLOG_CHECK_EQ(it[2], 13);
+      CLOG_CHECK(it == it);
+      CLOG_CHECK(it + 1 == it + 1);
+    }
+
     begin(vi);
     any<concept_const_free_begin<any_forward_iterator<int>(void)>> a =
         std::move(vi);
